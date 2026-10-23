@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { resolveAuthUser } from "@/utils/auth";
 import { prisma } from "@/services/db";
 import { routeErrorResponse } from "@/utils/http-errors";
+import { withPublicAvatar } from "@/services/avatar";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ user: dbUser });
+    return NextResponse.json({ user: withPublicAvatar(dbUser) });
   } catch (error) {
     return routeErrorResponse(error, {
       operation: "Auth me check error:",

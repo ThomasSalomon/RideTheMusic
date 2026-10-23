@@ -1,5 +1,6 @@
 import { prisma } from "./db";
 import { DeezerService, DeezerAlbumSearchItem } from "./deezer";
+import { withPublicAvatar } from "./avatar";
 
 export interface Track {
   title: string;
@@ -343,7 +344,10 @@ export const MusicService = {
       releaseYear: item.releaseYear,
       tracks: parsedTracks,
       createdAt: item.createdAt,
-      reviews: item.reviews as ReviewWithUser[],
+      reviews: (item.reviews as ReviewWithUser[]).map((review) => ({
+        ...review,
+        user: withPublicAvatar({ ...review.user, profileImage: review.user.profileImage ?? null }),
+      })),
       stats: {
         averageRating,
         totalRatings: ratingsCount,

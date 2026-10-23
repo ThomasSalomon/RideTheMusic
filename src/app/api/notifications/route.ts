@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/services/db";
 import { getAuthUser } from "@/utils/auth";
+import { withPublicAvatar } from "@/services/avatar";
 import { descendingTemporalWhere, getPageLimit, pageResult, PaginationError, temporalCursor } from "@/utils/cursor-pagination";
 
 export async function GET(req: Request) {
@@ -34,7 +35,7 @@ export async function GET(req: Request) {
       where: { id: { in: sourceUserIds } },
       select: { id: true, username: true, profileImage: true, profileColor: true },
     });
-    const sourceUsersById = new Map(sourceUsers.map((user) => [user.id, user]));
+    const sourceUsersById = new Map(sourceUsers.map((user) => [user.id, withPublicAvatar(user)]));
     const enrichedNotifications = page.items.map((notification) => ({
       ...notification,
       sourceUser: notification.sourceUserId ? sourceUsersById.get(notification.sourceUserId) ?? null : null,

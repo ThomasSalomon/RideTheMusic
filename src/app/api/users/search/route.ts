@@ -1,14 +1,44 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/services/db";
+import { withPublicAvatar } from "@/services/avatar";
+import { getPageLimit, PaginationError } from "@/utils/cursor-pagination";
 
 export const dynamic = "force-dynamic";
+
+const MAX_SEARCH_INDEX = 10_000;
+const MAX_QUERY_LENGTH = 100;
+
+const userSelect = {
+  username: true,
+  profileColor: true,
+  profileImage: true,
+  _count: {
+    select: { followers: true, following: true, reviews: true },
+  },
+} as const;
+
+function searchIndex(searchParams: URLSearchParams): number {
+  const raw = searchParams.get("index");
+  if (raw === null) return 0;
+  if (!/^\d+$/.test(raw) || Number(raw) > MAX_SEARCH_INDEX) {
+    throw new PaginationError(`El índice debe ser un entero entre 0 y ${MAX_SEARCH_INDEX}`);
+  }
+  return Number(raw);
+}
 
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const query = url.searchParams.get("q") || "";
-    const index = parseInt(url.searchParams.get("index") || "0", 10);
-    const limit = parseInt(url.searchParams.get("limit") || "50", 10);
+    const index = searchIndex(url.searchParams);
+    const limit = getPageLimit(url.searchParams);
+
+    if (query.length > MAX_QUERY_LENGTH) {
+      return NextResponse.json(
+        { error: `La búsqueda no puede superar ${MAX_QUERY_LENGTH} caracteres` },
+        { status: 400 }
+      );
+    }
 
     if (!query) {
       // If no query, return top users by follower count
@@ -27,17 +57,9 @@ export async function GET(req: Request) {
             },
           }
         ],
-        select: {
-          id: true,
-          username: true,
-          profileColor: true,
-          profileImage: true,
-          _count: {
-            select: { followers: true, following: true, reviews: true },
-          },
-        },
+        select: userSelect,
       });
-      return NextResponse.json(topUsers);
+      return NextResponse.json(topUsers.map(withPublicAvatar));
     }
 
     const users = await prisma.user.findMany({
@@ -48,19 +70,12 @@ export async function GET(req: Request) {
       },
       skip: index,
       take: limit,
-      select: {
-        id: true,
-        username: true,
-        profileColor: true,
-        profileImage: true,
-        _count: {
-          select: { followers: true, following: true, reviews: true },
-        },
-      },
+      select: userSelect,
     });
 
-    return NextResponse.json(users);
+    return NextResponse.json(users.map(withPublicAvatar));
   } catch (error) {
+    if (error instanceof PaginationError) return NextResponse.json({ error: error.message }, { status: 400 });
     console.error("GET user search error:", error);
     return NextResponse.json(
       { error: "Error al buscar usuarios" },

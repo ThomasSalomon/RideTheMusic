@@ -31,6 +31,7 @@ export default function RegisterPage() {
     const nextErrors: Partial<Record<RegisterField, string>> = {};
     if (!username.trim()) nextErrors.username = t("usernameRequired");
     else if (username.length < 3) nextErrors.username = t("usernameMin");
+    else if (!/^[A-Za-z0-9][A-Za-z0-9_.-]{2,29}$/.test(username)) nextErrors.username = t("usernameFormat");
     if (!email.trim()) nextErrors.email = t("emailRequired");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) nextErrors.email = t("emailInvalid");
     if (!password) nextErrors.password = t("passwordRequired");
@@ -80,7 +81,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className={styles.form} noValidate>
           <Field id="register-username" label={t("username")} error={fieldErrors.username} required>
-            <input ref={usernameRef} name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} minLength={3} value={username} onChange={(e) => { setUsername(e.target.value); clearFieldError("username"); }} placeholder={t("usernamePlaceholder")} className="input-field" disabled={loading} />
+            <input ref={usernameRef} name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} minLength={3} maxLength={30} value={username} onChange={(e) => { setUsername(e.target.value); clearFieldError("username"); }} placeholder={t("usernamePlaceholder")} className="input-field" disabled={loading} />
           </Field>
 
           <Field id="register-email" label={t("email")} error={fieldErrors.email} required>

@@ -14,6 +14,7 @@ const groups = [
   ["test/rating-integrity.test.ts"],
   ["test/user-derived-cache.test.ts"],
   ["test/social-actions.test.ts"],
+  ["test/security-hardening.test.ts"],
 ];
 
 for (const files of groups) {

@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run test:all",
     "test:all": "npm run test:unit && npm run test:static && npm run test:integration && npm run db:migrate:test",
-    "test:unit": "tsx --test test/artist-discography.test.ts test/cover-tilt.test.ts test/cursor-pagination.test.ts test/home-search.test.ts test/home-search-cache.test.ts test/home-search-url.test.ts test/profile-tabs.test.ts test/review-tags.test.ts test/search-request.test.ts",
+    "test:unit": "tsx --test test/artist-discography.test.ts test/cover-tilt.test.ts test/cursor-pagination.test.ts test/home-search.test.ts test/home-search-cache.test.ts test/home-search-url.test.ts test/profile-tabs.test.ts test/review-tags.test.ts test/search-request.test.ts test/security-hardening-unit.test.ts",
     "test:static": "tsx --test test/a11y-theme.test.ts test/auth-session-sync.test.ts test/i18n-messages.test.ts test/motion-interactions.test.ts test/review-favorite-track.test.ts test/ui-foundations.test.ts",
     "test:integration": "tsx scripts/run-integration-tests.ts",
     "db:validate": "prisma validate",

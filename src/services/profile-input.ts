@@ -7,6 +7,9 @@ import {
 
 export const PROFILE_COLORS = ["emerald", "violet", "cobalt", "amber", "rose", "slate"] as const;
 export const MAX_PROFILE_BIO_LENGTH = 500;
+export const MAX_FAVORITE_GENRE_LENGTH = 50;
+// Presets and legacy upload paths are short; data URLs have their own limit in services/avatar.
+const MAX_PROFILE_IMAGE_PATH_LENGTH = 300;
 export const MAX_FAVORITE_ALBUM_SLOTS = 3;
 const MAX_MUSIC_ITEM_ID_LENGTH = 200;
 
@@ -67,7 +70,13 @@ export function parseProfileUpdate(value: unknown): ProfileUpdateInput {
     invalid(`La biografía no puede superar los ${MAX_PROFILE_BIO_LENGTH} caracteres`);
   }
   const favoriteGenre = optionalText(value, "favoriteGenre");
+  if (favoriteGenre !== undefined && favoriteGenre.length > MAX_FAVORITE_GENRE_LENGTH) {
+    invalid(`El género favorito no puede superar los ${MAX_FAVORITE_GENRE_LENGTH} caracteres`);
+  }
   const profileImage = optionalText(value, "profileImage");
+  if (profileImage !== undefined && !profileImage.startsWith("data:") && profileImage.length > MAX_PROFILE_IMAGE_PATH_LENGTH) {
+    invalid("Avatar inválido. Seleccione un preset o cargue una foto.");
+  }
   let profileColor: ProfileUpdateInput["profileColor"];
   if (Object.hasOwn(value, "profileColor")) {
     const candidate = value.profileColor;

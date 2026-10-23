@@ -6,6 +6,7 @@ import {
   SocialActionService,
 } from "@/services/social-actions";
 import { resolveAuthUser } from "@/utils/auth";
+import { withPublicAvatar } from "@/services/avatar";
 import { ascendingTemporalWhere, getPageLimit, pageResult, PaginationError, temporalCursor } from "@/utils/cursor-pagination";
 
 export const dynamic = "force-dynamic";
@@ -38,7 +39,12 @@ export async function POST(
     const input = parseCreateCommentInput(body);
     const result = await SocialActionService.comment(auth.user, params.id, input);
     return NextResponse.json(
-      { ...result.comment, changed: result.changed, commentsCount: result.commentsCount },
+      {
+        ...result.comment,
+        user: withPublicAvatar(result.comment.user),
+        changed: result.changed,
+        commentsCount: result.commentsCount,
+      },
       { status: result.changed ? 201 : 200 },
     );
   } catch (error) {
@@ -74,7 +80,11 @@ export async function GET(
       },
     });
 
-    return NextResponse.json(pageResult(comments, limit, "createdAt"));
+    const page = pageResult(comments, limit, "createdAt");
+    return NextResponse.json({
+      ...page,
+      items: page.items.map((comment) => ({ ...comment, user: withPublicAvatar(comment.user) })),
+    });
   } catch (error) {
     if (error instanceof PaginationError) return NextResponse.json({ error: error.message }, { status: 400 });
     console.error("GET comments error:", error);

@@ -3,40 +3,39 @@ import { prisma } from "@/services/db";
 import { MusicService } from "@/services/music";
 import type { ProfileUpdateInput } from "@/services/profile-input";
 import { AppError } from "@/utils/errors";
+import {
+  ALLOWED_AVATAR_MIMES,
+  isOwnAvatarUrl,
+  MAX_UPLOADED_AVATAR_LENGTH,
+  parseAvatarDataUrl,
+  withPublicAvatar,
+} from "@/services/avatar";
 
-const MAX_PROFILE_IMAGE_BASE64_LENGTH = 2.8 * 1024 * 1024;
-const ALLOWED_PROFILE_IMAGE_MIMES = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/jpg",
-  "image/webp",
-  "image/gif",
-]);
-
-function validateProfileImage(profileImage: string | undefined): string | undefined {
+function validateProfileImage(username: string, profileImage: string | undefined): string | undefined {
   if (profileImage === undefined || profileImage === "") return profileImage;
 
+  // The editor echoes back the public URL of the photo it was opened with.
+  if (isOwnAvatarUrl(username, profileImage)) return undefined;
+
   if (profileImage.startsWith("data:image/")) {
-    const match = profileImage.match(
-      /^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/,
-    );
-    if (!match) {
+    const avatar = parseAvatarDataUrl(profileImage);
+    if (!avatar) {
       throw new AppError(
         "Formato de imagen base64 inválido.",
         400,
         "INVALID_PROFILE_IMAGE",
       );
     }
-    if (!ALLOWED_PROFILE_IMAGE_MIMES.has(match[1])) {
+    if (!ALLOWED_AVATAR_MIMES.has(avatar.mime)) {
       throw new AppError(
         "Tipo de archivo no permitido. Solo se permiten imágenes (PNG, JPEG, WEBP, GIF).",
         400,
         "PROFILE_IMAGE_TYPE_NOT_ALLOWED",
       );
     }
-    if (profileImage.length > MAX_PROFILE_IMAGE_BASE64_LENGTH) {
+    if (profileImage.length > MAX_UPLOADED_AVATAR_LENGTH) {
       throw new AppError(
-        "La imagen supera el límite de tamaño de 2MB.",
+        "La imagen recortada supera el tamaño permitido.",
         400,
         "PROFILE_IMAGE_TOO_LARGE",
       );
@@ -64,7 +63,7 @@ export async function updateProfile(
   input: ProfileUpdateInput,
   client: PrismaClient = prisma,
 ) {
-  const profileImage = validateProfileImage(input.profileImage);
+  const profileImage = validateProfileImage(username, input.profileImage);
   const requestedAlbums = await Promise.all(
     (input.favoriteAlbums ?? [])
       .filter((item) => item.musicItemId !== null)
@@ -94,7 +93,7 @@ export async function updateProfile(
     }
   }
 
-  return client.user.update({
+  const updated = await client.user.update({
     where: { username },
     data: {
       bio: input.bio,
@@ -128,4 +127,5 @@ export async function updateProfile(
       },
     },
   });
+  return withPublicAvatar(updated);
 }

@@ -5,6 +5,7 @@ import { parseCreateReviewInput } from "@/services/review-input";
 import { createReview, enrichReviewSummaries } from "@/services/reviews";
 import { readJsonObject } from "@/utils/request-body";
 import { routeErrorResponse } from "@/utils/http-errors";
+import { withPublicAvatar } from "@/services/avatar";
 import {
   invalidateUserRecapCache,
   invalidateUserStatsCache,
@@ -75,7 +76,9 @@ export async function GET(req: Request) {
       : null;
     const enrichedReviews = await enrichReviewSummaries(reviews, currentUserId);
 
-    return NextResponse.json(enrichedReviews);
+    return NextResponse.json(
+      enrichedReviews.map((review) => ({ ...review, user: withPublicAvatar(review.user) })),
+    );
   } catch (error) {
     console.error("Fetch reviews error:", error);
     return NextResponse.json(

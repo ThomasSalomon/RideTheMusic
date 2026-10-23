@@ -5,6 +5,7 @@ import { updateProfile } from "@/services/profile";
 import { parseProfileUpdate } from "@/services/profile-input";
 import { routeErrorResponse } from "@/utils/http-errors";
 import { readJsonObject } from "@/utils/request-body";
+import { withPublicAvatar } from "@/services/avatar";
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +82,7 @@ export async function GET(
     const { id, ...publicProfile } = user;
 
     return NextResponse.json({
-      profile: publicProfile,
+      profile: withPublicAvatar(publicProfile),
       stats: {
         reviewsCount,
         followersCount,

@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/services/db";
 import { setAuthCookie, signToken } from "@/utils/auth";
-import { comparePassword } from "@/utils/crypto";
-import { rateLimit, getIP } from "@/utils/rateLimit";
+import { comparePassword, comparePasswordWithoutAccount } from "@/utils/crypto";
+import { rateLimit, getClientIP } from "@/utils/rateLimit";
 import { readJsonObject, rejectUnknownFields, RequestBodyError } from "@/utils/request-body";
+
+const LOGIN_RATE_LIMIT = { windowMs: 15 * 60 * 1000, max: 10 }; // 10 attempts per 15 minutes
+const MAX_LOGIN_IDENTIFIER_LENGTH = 320;
+
+function tooManyAttempts() {
+  return NextResponse.json({ error: "Demasiados intentos de inicio de sesión. Por favor, intenta de nuevo más tarde." }, { status: 429 });
+}
 
 export async function POST(req: Request) {
   try {
-    const ip = getIP(req);
-    const { success } = rateLimit(ip, { windowMs: 15 * 60 * 1000, max: 10 }); // 10 attempts per 15 minutes
-    
-    if (!success) {
-      return NextResponse.json({ error: "Demasiados intentos de inicio de sesión. Por favor, intenta de nuevo más tarde." }, { status: 429 });
+    // The address limit only applies when a trusted proxy supplies it; the
+    // per-account limit below holds even when every client can forge headers.
+    const ip = getClientIP(req);
+    if (ip && !rateLimit(`login:ip:${ip}`, LOGIN_RATE_LIMIT).success) {
+      return tooManyAttempts();
     }
 
     const body = await readJsonObject(req);
@@ -25,6 +32,18 @@ export async function POST(req: Request) {
       );
     }
 
+    if (usernameOrEmail.length > MAX_LOGIN_IDENTIFIER_LENGTH) {
+      return NextResponse.json(
+        { error: "Credenciales inválidas" },
+        { status: 400 }
+      );
+    }
+
+    const accountKey = `login:account:${usernameOrEmail.trim().toLowerCase()}`;
+    if (!rateLimit(accountKey, LOGIN_RATE_LIMIT).success) {
+      return tooManyAttempts();
+    }
+
     // Find user by username or email
     const user = await prisma.user.findFirst({
       where: {
@@ -36,9 +55,8 @@ export async function POST(req: Request) {
     });
 
     if (!user) {
-      // Perform a dummy comparison to neutralize temporal side-channel timing attacks
-      const dummyHash = "$2b$10$abcdefghijklmnopqrstuvwxyzaaaaaaaaaaaaaaaaaaaaa";
-      await comparePassword(password, dummyHash);
+      // Spend the same bcrypt work as a wrong password to avoid a timing oracle.
+      await comparePasswordWithoutAccount(password);
       return NextResponse.json(
         { error: "Credenciales inválidas" },
         { status: 400 }

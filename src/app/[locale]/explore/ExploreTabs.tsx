@@ -200,7 +200,7 @@ export default function ExploreTabs() {
             {activeTab === "users" && users.length > 0 && (
               <div className={styles.usersGrid}>
                 {users.map((user) => (
-                  <Link href={`/users/${user.username}`} key={user.id} className={styles.userCard}>
+                  <Link href={`/users/${user.username}`} key={user.username} className={styles.userCard}>
                     <Avatar
                       username={user.username}
                       profileColor={user.profileColor}

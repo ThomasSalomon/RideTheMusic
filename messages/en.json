@@ -131,6 +131,7 @@
     "emailInvalid": "Enter a valid email address",
     "passwordRequired": "Enter your password",
     "usernameMin": "Username must have at least 3 characters",
+    "usernameFormat": "Use up to 30 letters, numbers, dots, hyphens or underscores, starting with a letter or number",
     "passwordMin": "Password must have at least 6 characters",
     "loginFailed": "Could not log in.",
     "registerFailed": "Could not complete registration.",

@@ -199,7 +199,7 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }: E
                 })}
 
                 {/* Custom uploaded image preview */}
-                {(editImage.startsWith("data:image/") || editImage.startsWith("/uploads/")) && (
+                {(editImage.startsWith("data:image/") || editImage.startsWith("/uploads/") || editImage.startsWith("/api/users/")) && (
                   <div style={{ position: "relative" }}>
                     <img
                       src={editImage}
@@ -308,6 +308,7 @@ export default function EditProfileModal({ isOpen, onClose, profile, onSave }: E
                 type="text"
                 className={styles.formInput}
                 value={editGenre}
+                maxLength={50}
                 onChange={(e) => setEditGenre(e.target.value)}
                 placeholder={t("genrePlaceholder")}
               />

@@ -5,6 +5,7 @@ import { prisma } from "@/services/db";
 import { descendingTemporalWhere, getPageLimit, pageResult, PaginationError, temporalCursor } from "@/utils/cursor-pagination";
 import { DeezerError, deezerHttpError } from "@/services/deezer-http";
 import { enrichReviewSummaries } from "@/services/reviews";
+import { withPublicAvatar } from "@/services/avatar";
 
 export async function GET(
   req: Request,
@@ -79,7 +80,7 @@ export async function GET(
 
     return NextResponse.json({
       ...item,
-      reviews: enrichedReviews,
+      reviews: enrichedReviews.map((review) => ({ ...review, user: withPublicAvatar(review.user) })),
       reviewsNextCursor: reviewPage.nextCursor,
       reviewsHasNextPage: reviewPage.hasNextPage,
       reviewsLimit: reviewPage.limit,

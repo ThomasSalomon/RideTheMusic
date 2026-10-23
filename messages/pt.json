@@ -131,6 +131,7 @@
     "emailInvalid": "Informe um e-mail válido",
     "passwordRequired": "Informe sua senha",
     "usernameMin": "O nome de usuário deve ter pelo menos 3 caracteres",
+    "usernameFormat": "Use até 30 letras, números, pontos, hifens ou sublinhados, começando com uma letra ou número",
     "passwordMin": "A senha deve ter pelo menos 6 caracteres",
     "loginFailed": "Não foi possível entrar.",
     "registerFailed": "Não foi possível concluir o cadastro.",
