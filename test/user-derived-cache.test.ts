@@ -42,11 +42,13 @@ class TestIncrementalCache {
     }
   }
 
-  async revalidateTag(tag: string): Promise<void> {
-    this.revalidatedTags.push(tag);
-    this.entries.forEach((entry, key) => {
-      if (entry.tags.includes(tag)) this.entries.delete(key);
-    });
+  async revalidateTag(tags: string | string[]): Promise<void> {
+    for (const tag of Array.isArray(tags) ? tags : [tags]) {
+      this.revalidatedTags.push(tag);
+      this.entries.forEach((entry, key) => {
+        if (entry.tags.includes(tag)) this.entries.delete(key);
+      });
+    }
   }
 
   writesFor(tag: string): number {
@@ -69,14 +71,20 @@ async function inNextCacheContext<T>(cache: TestIncrementalCache, action: () => 
     "next/dist/client/components/static-generation-async-storage.external"
   ).then((module) => module.staticGenerationAsyncStorage);
   staticGenerationAsyncStorage = storage;
-  return storage.run({
+  const store: { revalidatedTags?: string[] } & Record<string, unknown> = {
     incrementalCache: cache,
     isStaticGeneration: false,
     prerenderState: null,
     urlPathname: "/api/test-cache",
     pagePath: "/api/test-cache",
     fetchCache: "auto",
-  } as any, action);
+  };
+  const result = await storage.run(store, action);
+  // revalidateTag() only records tags on the store; Next's AppRouteRouteModule
+  // flushes them to the incremental cache after the handler returns. Handlers
+  // are called directly here, so mirror that flush before the next read.
+  await cache.revalidateTag(store.revalidatedTags ?? []);
+  return result;
 }
 
 async function json(response: Response): Promise<any> {
