@@ -25,7 +25,8 @@ export default function ExploreTabs() {
   const [albums, setAlbums] = useState<any[]>([]);
   const [artists, setArtists] = useState<any[]>([]);
   
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [page, setPage] = useState(0);
@@ -40,8 +41,9 @@ export default function ExploreTabs() {
   }, [searchQuery, activeTab]);
 
   const fetchData = async (tab: Tab, query: string, pageIndex: number) => {
+    const setBusy = pageIndex === 0 ? setLoading : setLoadingMore;
     try {
-      setLoading(true);
+      setBusy(true);
       setLoadError(false);
       const isQueryEmpty = query.trim().length === 0;
       setIsSearching(!isQueryEmpty);
@@ -76,7 +78,7 @@ export default function ExploreTabs() {
       console.error(e);
       setLoadError(true);
     } finally {
-      setLoading(false);
+      setBusy(false);
     }
   };
 
@@ -184,18 +186,19 @@ export default function ExploreTabs() {
       </div>
 
       <div id="explore-results" role="tabpanel" aria-labelledby={`explore-tab-${activeTab}`}>
-        <h2 className={styles.sectionTitle}>{renderSectionTitle()}</h2>
-        
+        <h2 className={`section-heading ${styles.sectionTitle}`}>{renderSectionTitle()}</h2>
+
         {loading ? (
-          <div className="loader" style={{ margin: "40px auto" }}>{common("loading")}</div>
-        ) : loadError ? (
-          <div style={{ color: "var(--text-secondary)", marginTop: "20px" }} role="alert">
-            {common("error")} <button type="button" onClick={() => fetchData(activeTab, searchQuery, page)}>{common("retry")}</button>
+          <ExploreSkeleton tab={activeTab} label={common("loading")} />
+        ) : loadError && page === 0 ? (
+          <div className={styles.statusBox} role="alert">
+            <span>{common("error")}</span>
+            <button type="button" className={styles.retryButton} onClick={() => fetchData(activeTab, searchQuery, 0)}>{common("retry")}</button>
           </div>
         ) : (
           <>
             {activeTab === "users" && users.length === 0 && (
-              <div style={{ color: "var(--text-secondary)", marginTop: "20px" }}>{t("noUsers")}</div>
+              <div className={styles.statusBox}>{t("noUsers")}</div>
             )}
             {activeTab === "users" && users.length > 0 && (
               <div className={styles.usersGrid}>
@@ -206,7 +209,7 @@ export default function ExploreTabs() {
                       profileColor={user.profileColor}
                       profileImage={user.profileImage}
                       size={80}
-                      style={{ boxShadow: "0 4px 10px rgba(0,0,0,0.3)" }}
+                      style={{ boxShadow: "var(--shadow-sm)" }}
                     />
                     <h3 className={styles.username}>@{user.username}</h3>
                     <div className={styles.userStats}>
@@ -225,7 +228,7 @@ export default function ExploreTabs() {
             )}
 
             {activeTab === "albums" && albums.length === 0 && (
-              <div style={{ color: "var(--text-secondary)", marginTop: "20px" }}>{t("noAlbums")}</div>
+              <div className={styles.statusBox}>{t("noAlbums")}</div>
             )}
             {activeTab === "albums" && albums.length > 0 && (
               <div className={styles.albumsGrid}>
@@ -248,7 +251,7 @@ export default function ExploreTabs() {
             )}
 
             {activeTab === "artists" && artists.length === 0 && (
-              <div style={{ color: "var(--text-secondary)", marginTop: "20px" }}>{t("noArtists")}</div>
+              <div className={styles.statusBox}>{t("noArtists")}</div>
             )}
             {activeTab === "artists" && artists.length > 0 && (
               <div className={styles.artistsGrid}>
@@ -257,8 +260,9 @@ export default function ExploreTabs() {
                     <div className={styles.artistImageContainer}>
                       <img
                         src={artist.pictureUrl}
-                        alt={artist.name}
+                        alt=""
                         className={styles.artistImage}
+                        loading="lazy"
                       />
                     </div>
                     <span className={styles.artistName}>{artist.name}</span>
@@ -266,11 +270,17 @@ export default function ExploreTabs() {
                 ))}
               </div>
             )}
-            {hasMore && (
-              <div style={{ display: "flex", justifyContent: "center", marginTop: "40px", marginBottom: "20px" }}>
+            {loadError && page > 0 && (
+              <div className={styles.statusBox} role="alert">
+                <span>{common("error")}</span>
+                <button type="button" className={styles.retryButton} onClick={() => fetchData(activeTab, searchQuery, page)}>{common("retry")}</button>
+              </div>
+            )}
+            {hasMore && !loadError && (
+              <div className={styles.loadMoreRow}>
                 <Button
                   onClick={loadMore}
-                  isLoading={loading}
+                  isLoading={loadingMore}
                   loadingLabel={common("loading")}
                 >
                   {common("loadMore")}
@@ -280,6 +290,48 @@ export default function ExploreTabs() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function ExploreSkeleton({ tab, label }: { tab: Tab; label: string }) {
+  const placeholders = Array.from({ length: tab === "users" ? 6 : 10 }, (_, index) => index);
+
+  return (
+    <div role="status" aria-busy="true">
+      <span className="sr-only">{label}</span>
+      {tab === "albums" && (
+        <div className={styles.albumsGrid} aria-hidden="true">
+          {placeholders.map((index) => (
+            <div key={index} className={styles.albumCard}>
+              <span className={`skeleton ${styles.skeletonCover}`} />
+              <span className="skeleton" style={{ width: "80%", height: 14 }} />
+              <span className="skeleton" style={{ width: "50%", height: 12 }} />
+            </div>
+          ))}
+        </div>
+      )}
+      {tab === "artists" && (
+        <div className={styles.artistsGrid} aria-hidden="true">
+          {placeholders.map((index) => (
+            <div key={index} className={styles.artistCard}>
+              <span className={`skeleton ${styles.artistImageContainer}`} />
+              <span className="skeleton" style={{ width: "60%", height: 14 }} />
+            </div>
+          ))}
+        </div>
+      )}
+      {tab === "users" && (
+        <div className={styles.usersGrid} aria-hidden="true">
+          {placeholders.map((index) => (
+            <div key={index} className={styles.userCard}>
+              <span className="skeleton" style={{ width: 80, height: 80, borderRadius: "50%" }} />
+              <span className="skeleton" style={{ width: "50%", height: 16, margin: "16px 0 12px" }} />
+              <span className="skeleton" style={{ width: "70%", height: 28 }} />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

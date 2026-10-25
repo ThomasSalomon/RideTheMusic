@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
-import Image from "next/image";
+import Avatar from "@/components/Avatar/Avatar";
 import styles from "./page.module.css";
 import { useTranslations, useLocale } from "next-intl";
 
@@ -15,6 +15,7 @@ interface ListData {
   user: {
     username: string;
     profileColor: string | null;
+    profileImage?: string | null;
   };
   items: Array<{
     id: string;
@@ -59,7 +60,24 @@ export default function ListDetailClient({ id }: { id: string }) {
   }, [id, t]);
 
   if (loading) {
-    return <div className={styles.loading}>{t("loading")}</div>;
+    return (
+      <div className={styles.container} role="status" aria-busy="true">
+        <span className="sr-only">{t("loading")}</span>
+        <div className={styles.header} aria-hidden="true">
+          <span className="skeleton" style={{ width: "min(320px, 70%)", height: 44, marginBottom: 16 }} />
+          <span className="skeleton" style={{ width: 240, height: 14 }} />
+        </div>
+        <div className={styles.grid} aria-hidden="true">
+          {Array.from({ length: 5 }, (_, index) => (
+            <div key={index} className={styles.card}>
+              <span className={`skeleton ${styles.coverWrapper}`} />
+              <span className="skeleton" style={{ width: "75%", height: 14 }} />
+              <span className="skeleton" style={{ width: "45%", height: 12 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (error || !list) {
@@ -68,7 +86,7 @@ export default function ListDetailClient({ id }: { id: string }) {
         <div className={styles.emptyState}>
           <h3>{t("notFound")}</h3>
           <p>{error || t("notFound")}</p>
-          <Link href="/explore" className="neon-btn" style={{ marginTop: "20px", display: "inline-block" }}>
+          <Link href="/explore" className="neon-btn" style={{ marginTop: "20px", display: "inline-flex", alignItems: "center" }}>
             {common("backToExplore")}
           </Link>
         </div>
@@ -88,14 +106,17 @@ export default function ListDetailClient({ id }: { id: string }) {
         <div className={styles.meta}>
           <span>{t("by")}</span>
           <Link href={`/users/${list.user.username}`} className={styles.author}>
-            <div className={styles.avatar} style={{ backgroundColor: list.user.profileColor || "var(--primary)" }}>
-              {list.user.username.charAt(0).toUpperCase()}
-            </div>
+            <Avatar
+              username={list.user.username}
+              profileColor={list.user.profileColor}
+              profileImage={list.user.profileImage}
+              size={24}
+            />
             @{list.user.username}
           </Link>
-          <span>•</span>
+          <span aria-hidden="true">•</span>
           <span>{t("albums", {count: list.items.length})}</span>
-          <span>•</span>
+          <span aria-hidden="true">•</span>
           <span>{new Date(list.createdAt).toLocaleDateString(locale)}</span>
         </div>
       </div>

@@ -158,9 +158,25 @@ export default function ArtistDetailClient({
 
   if (loading) {
     return (
-      <div className={styles.container}>
-        <div style={{ padding: "100px", textAlign: "center", color: "#a1a1aa" }}>
-          {t("loading")}
+      <div className={styles.container} role="status" aria-busy="true">
+        <span className="sr-only">{t("loading")}</span>
+        <div className={`${styles.hero} ${styles.heroSkeleton}`} aria-hidden="true">
+          <div className={styles.heroContent}>
+            <span className="skeleton" style={{ width: "min(480px, 80%)", height: 64, marginBottom: 16 }} />
+            <span className="skeleton" style={{ width: 140, height: 16 }} />
+          </div>
+        </div>
+        <div className={styles.contentContainer} aria-hidden="true">
+          <div className={styles.contentInner}>
+            <div className={styles.albumsGrid}>
+              {Array.from({ length: 6 }, (_, index) => (
+                <div key={index} className={styles.albumCard}>
+                  <span className="skeleton" style={{ width: "100%", aspectRatio: "1", borderRadius: 12 }} />
+                  <span className="skeleton" style={{ width: "70%", height: 14 }} />
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -182,8 +198,8 @@ export default function ArtistDetailClient({
   if (!data) {
     return (
       <div className={styles.container}>
-        <div style={{ padding: "100px", textAlign: "center", color: "#ef4444" }}>
-          {t("notFound")}
+        <div className={styles.initialError} role="alert">
+          <p>{t("notFound")}</p>
         </div>
       </div>
     );
@@ -245,7 +261,7 @@ export default function ArtistDetailClient({
                   </div>
                 ))}
                 {data.topTracks.length === 0 && (
-                  <p style={{ color: "var(--text-muted)" }}>{t("noTopTracks")}</p>
+                  <p className={styles.emptyDiscography}>{t("noTopTracks")}</p>
                 )}
               </div>
             </div>
@@ -258,7 +274,8 @@ export default function ArtistDetailClient({
                     <div className={styles.relatedImageContainer}>
                       <img
                         src={artist.pictureUrl}
-                        alt={artist.name}
+                        alt=""
+                        loading="lazy"
                         className={styles.relatedImage}
                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       />
