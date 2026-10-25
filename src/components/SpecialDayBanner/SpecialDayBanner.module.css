@@ -1,8 +1,7 @@
 .bannerContainer {
   width: 100%;
-  padding: 3rem 2rem;
-  margin-bottom: 2rem;
-  min-height: 160px;
+  padding: 2.25rem 2rem;
+  min-height: 180px;
   border-radius: 16px;
   background: linear-gradient(135deg, #18181b, #09090b);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -24,8 +23,9 @@
   height: 100%;
   object-fit: cover;
   object-position: center 20%; /* Pushes the focus up towards the face */
-  opacity: 0;
-  transition: opacity 0.5s ease;
+  opacity: 0.5;
+  filter: saturate(0.85);
+  transition: opacity var(--duration-slow) var(--ease-standard), filter var(--duration-slow) var(--ease-standard);
   z-index: 0;
   mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%);
   -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,1) 50%);
@@ -33,6 +33,7 @@
 
 .bannerContainer:hover .artistBackground {
   opacity: 0.8;
+  filter: saturate(1);
 }
 
 .bannerContainer:hover {
@@ -99,9 +100,12 @@
     rgba(255, 255, 255, 0.05),
     transparent
   );
-  animation: shimmer 3s infinite;
   pointer-events: none;
   z-index: 1;
+}
+
+.bannerContainer:hover .shimmer {
+  animation: shimmer 1.2s var(--ease-expressive);
 }
 
 @keyframes shimmer {

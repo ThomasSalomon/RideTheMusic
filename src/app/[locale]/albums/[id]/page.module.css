@@ -49,6 +49,18 @@
     align-items: center;
     width: 100%;
   }
+
+  .leftCol > :not(.coverStage) {
+    width: min(100%, 320px);
+  }
+
+  .header {
+    text-align: center;
+  }
+
+  .actionsBar {
+    justify-content: center;
+  }
 }
 
 .leftCol {
@@ -144,6 +156,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.statsMeta > div {
+  font-variant-numeric: tabular-nums;
+  text-wrap: balance;
 }
 
 .statsMeta span {
@@ -351,8 +368,6 @@
   font-size: 1.4rem;
   color: var(--text-primary);
   margin-bottom: 20px;
-  border-left: 4px solid var(--secondary);
-  padding-left: 12px;
 }
 
 .reviewsStack {

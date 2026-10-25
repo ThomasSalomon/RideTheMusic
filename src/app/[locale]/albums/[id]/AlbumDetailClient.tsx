@@ -562,7 +562,7 @@ export default function AlbumDetailClient({ id }: { id: string }) {
           </section>
 
           <section className={styles.reviewsListSection}>
-            <h3 className={styles.sectionHeading}>{t("communityReviews")}</h3>
+            <h3 className={`section-heading ${styles.sectionHeading}`}>{t("communityReviews")}</h3>
             {album.reviews.length === 0 ? (
               <p className={styles.noReviews}>
                 {t("noReviews")}

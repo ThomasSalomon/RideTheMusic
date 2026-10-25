@@ -30,5 +30,5 @@ export default async function RootLayout({ children, params: { locale } }: Reado
   const authUser = await getAuthUser();
   const sessionUser = authUser ? { id: authUser.userId, username: authUser.username } : null;
 
-  return <html lang={locale}><body className={`${jetbrainsMono.variable} ${rajdhani.variable}`}><NextIntlClientProvider messages={messages}><Navbar initialUser={sessionUser} />{children}<Footer /><BottomNav initialUser={sessionUser} /><ToastListener /></NextIntlClientProvider></body></html>;
+  return <html lang={locale}><body className={`${jetbrainsMono.variable} ${rajdhani.variable}`}><NextIntlClientProvider messages={messages}><Navbar initialUser={sessionUser} /><div className="page-content">{children}</div><Footer /><BottomNav initialUser={sessionUser} /><ToastListener /></NextIntlClientProvider></body></html>;
 }

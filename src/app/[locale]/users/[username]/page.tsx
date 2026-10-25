@@ -580,8 +580,22 @@ export default function UserProfilePage() {
 
   if (loading) {
     return (
-      <div className="container" style={{ textAlign: "center", padding: "100px 0" }}>
-        <div className="loader">{t("loading")}</div>
+      <div className={styles.profilePage} role="status" aria-busy="true">
+        <span className="sr-only">{t("loading")}</span>
+        <div className={`${styles.profileHeader} ${styles.profileSkeleton}`} aria-hidden="true">
+          <div className={styles.userInfo}>
+            <span className={`skeleton ${styles.skeletonAvatar}`} />
+            <div className={styles.skeletonLines}>
+              <span className="skeleton" style={{ width: 180, height: 24 }} />
+              <span className="skeleton" style={{ width: 130, height: 12 }} />
+            </div>
+          </div>
+          <div className={styles.skeletonStats}>
+            {Array.from({ length: 3 }, (_, index) => (
+              <span key={index} className="skeleton" style={{ width: 64, height: 36 }} />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -589,14 +603,14 @@ export default function UserProfilePage() {
   if (error || !profile) {
     return (
       <div className={styles.profilePage}>
-        <div className="card" style={{ padding: "40px", textAlign: "center" }}>
-          <h2 style={{ marginBottom: "16px", color: "var(--text-primary)" }}>
+        <div className={styles.profileEmptyState}>
+          <h2>
              {error || t("profileNotFound")}
           </h2>
-          <p style={{ color: "--text-secondary", marginBottom: "24px" }}>
+          <p>
              {t("profileNotFoundDescription")}
           </p>
-          <Link href="/" className="neon-btn" style={{ display: "inline-block" }}>
+          <Link href="/" className="neon-btn" style={{ display: "inline-flex", alignItems: "center" }}>
              {common("backToHome")}
           </Link>
         </div>
@@ -685,7 +699,7 @@ export default function UserProfilePage() {
         {/* Bio */}
         <div className={styles.bioSection}>
           <h4 className={styles.bioTitle}>{t("biography")}</h4>
-          {profile.bio ? (
+          {profile.bio?.trim() ? (
             <p className={styles.bioText}>{profile.bio}</p>
           ) : (
             <p className={styles.bioPlaceholder}>

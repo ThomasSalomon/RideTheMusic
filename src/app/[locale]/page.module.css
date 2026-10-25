@@ -23,17 +23,20 @@
   max-width: 800px;
 }
 
+.heroTitle {
+  text-wrap: balance;
+}
+
 .heroTitle span {
   color: var(--primary);
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .heroSub {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
   color: var(--text-secondary);
-  max-width: 600px;
+  max-width: 560px;
+  text-wrap: pretty;
 }
 
 .searchContainer {
@@ -93,15 +96,6 @@
   border-bottom: 1px solid var(--border);
 }
 
-.searchEyebrow {
-  margin: 0 0 4px;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .searchTitle {
   font-size: clamp(1.8rem, 4vw, 2.6rem);
   line-height: 1.15;
@@ -156,14 +150,58 @@
 .sectionTitle {
   font-size: 1.6rem;
   font-weight: 700;
-  border-left: 4px solid var(--primary);
-  padding-left: 12px;
+}
+
+.sectionHeader .sectionTitle {
+  flex: 1 1 auto;
 }
 
 .albumsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--result-card-min, 200px), 1fr));
-  gap: var(--result-grid-gap, 32px);
+  grid-template-columns: repeat(auto-fill, minmax(var(--result-card-min, 160px), 1fr));
+  gap: var(--result-grid-gap, 28px 20px);
+}
+
+.skeletonCover {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+}
+
+.skeletonLine {
+  height: 12px;
+  border-radius: 4px;
+}
+
+.skeletonReview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+}
+
+.skeletonReviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.skeletonReviewMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeletonAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .albumCard {
@@ -213,6 +251,7 @@
   color: var(--text-muted);
   font-size: 0.8rem;
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .reviewsList {
@@ -335,6 +374,7 @@
   border-radius: 50%;
   object-fit: cover;
   background: var(--surface);
+  box-shadow: 0 0 0 1px var(--border);
 }
 
 .partialNotice {

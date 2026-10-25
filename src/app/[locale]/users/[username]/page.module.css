@@ -15,17 +15,58 @@
   gap: 24px;
   margin-bottom: 40px;
   position: relative;
+  isolation: isolate;
   overflow: hidden;
 }
 
 .profileHeader::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  background: var(--profile-theme-color, var(--primary));
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 90% at 0% 0%, var(--profile-theme-bg, rgba(0, 229, 117, 0.1)), transparent 70%);
+}
+
+.profileSkeleton {
+  min-height: 220px;
+  justify-content: center;
+}
+
+.skeletonAvatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeletonLines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeletonStats {
+  display: flex;
+  gap: 32px;
+}
+
+.profileEmptyState {
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--bg-card);
+}
+
+.profileEmptyState h2 {
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.profileEmptyState p {
+  margin-bottom: 24px;
+  color: var(--text-secondary);
 }
 
 .headerMain {

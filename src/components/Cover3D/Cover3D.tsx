@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import styles from "./Cover3D.module.css";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { getCoverTilt } from "@/utils/cover-tilt";
@@ -16,7 +16,13 @@ export default function Cover3D({ src, alt, size = 300 }: Cover3DProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  
+  const [imageFailed, setImageFailed] = useState(false);
+  const showFallback = !src || imageFailed;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [src]);
+
   // Cache the bounding rect to avoid layout thrashing on mousemove
   const rectRef = useRef<DOMRect | null>(null);
   const rafRef = useRef<number | null>(null);
@@ -101,11 +107,21 @@ export default function Cover3D({ src, alt, size = 300 }: Cover3DProps) {
       onMouseEnter={prefersReducedMotion ? undefined : handleMouseEnter}
       onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
       onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
-      style={{ width: sizeStyle, height: sizeStyle }}
+      style={{ width: sizeStyle, aspectRatio: "1 / 1" }}
     >
       <div ref={cardRef} className={styles.card}>
         <div ref={glowRef} className={styles.glow} />
-        <img src={src} alt={alt} className={styles.image} loading="lazy" />
+        {showFallback ? (
+          <div className={styles.fallback} role="img" aria-label={alt}>
+            <svg viewBox="0 0 64 64" aria-hidden="true" className={styles.fallbackIcon}>
+              <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" strokeWidth="2" />
+              <circle cx="32" cy="32" r="16" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+              <circle cx="32" cy="32" r="5" fill="none" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </div>
+        ) : (
+          <img src={src} alt={alt} className={styles.image} loading="lazy" onError={() => setImageFailed(true)} />
+        )}
       </div>
     </div>
   );

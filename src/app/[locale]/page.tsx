@@ -75,6 +75,44 @@ function AlbumGrid({ items }: { items: MusicItem[] }) {
   );
 }
 
+function AlbumGridSkeleton({ label }: { label: string }) {
+  return (
+    <div className={styles.albumsGrid} role="status" aria-busy="true">
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: 6 }, (_, index) => (
+        <div key={index} className={styles.albumCard} aria-hidden="true">
+          <span className={`skeleton ${styles.skeletonCover}`} />
+          <div className={styles.albumMeta}>
+            <span className={`skeleton ${styles.skeletonLine}`} style={{ width: "80%" }} />
+            <span className={`skeleton ${styles.skeletonLine}`} style={{ width: "50%" }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ReviewListSkeleton({ label }: { label: string }) {
+  return (
+    <div className={styles.reviewsList} role="status" aria-busy="true">
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: 3 }, (_, index) => (
+        <div key={index} className={styles.skeletonReview} aria-hidden="true">
+          <div className={styles.skeletonReviewHeader}>
+            <span className={`skeleton ${styles.skeletonAvatar}`} />
+            <div className={styles.skeletonReviewMeta}>
+              <span className={`skeleton ${styles.skeletonLine}`} style={{ width: "40%" }} />
+              <span className={`skeleton ${styles.skeletonLine}`} style={{ width: "28%" }} />
+            </div>
+          </div>
+          <span className={`skeleton ${styles.skeletonLine}`} style={{ width: "92%" }} />
+          <span className={`skeleton ${styles.skeletonLine}`} style={{ width: "64%" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AlbumMatchGrid({ groups }: { groups: SearchResponse["titleAlbumGroups"] }) {
   const t = useTranslations("Home");
 
@@ -341,12 +379,9 @@ export default function HomePage() {
       {isSearchMode ? (
         <section className={styles.searchSection} aria-labelledby="search-results-heading">
           <div className={styles.searchHeader}>
-            <div>
-              <p className={styles.searchEyebrow}>{t("searchResults")}</p>
-              <h1 id="search-results-heading" className={styles.searchTitle}>
-                {t("searchResultsFor", { query: activeSearchQuery })}
-              </h1>
-            </div>
+            <h1 id="search-results-heading" className={styles.searchTitle}>
+              {t("searchResultsFor", { query: activeSearchQuery })}
+            </h1>
             <button type="button" className={styles.clearSearchButton} onClick={clearSearch}>
               {t("clearSearch")}
             </button>
@@ -411,15 +446,15 @@ export default function HomePage() {
           <div className={styles.specialDayContainer}><SpecialDayBanner /></div>
           <div className={styles.contentGrid}>
             <section className={styles.musicSection}>
-              <h2 className={styles.sectionTitle}>{t("popularAlbums")}</h2>
-              {loading ? <div className={styles.loader}>{t("loadingCatalog")}</div> : catalogError ? <div className={styles.searchStatus} role="alert"><span>{t("searchError")}</span><button type="button" className={styles.retryButton} onClick={() => setCatalogRetryKey((key) => key + 1)}>{t("retrySearch")}</button></div> :
+              <h2 className={`section-heading ${styles.sectionTitle}`}>{t("popularAlbums")}</h2>
+              {loading ? <AlbumGridSkeleton label={t("loadingCatalog")} /> : catalogError ? <div className={styles.searchStatus} role="alert"><span>{t("searchError")}</span><button type="button" className={styles.retryButton} onClick={() => setCatalogRetryKey((key) => key + 1)}>{t("retrySearch")}</button></div> :
                 items.length === 0 ? <div className={styles.noResults}>{t("noAlbums")}</div> :
                 <AlbumGrid items={items} />}
             </section>
 
             <section className={styles.reviewsSection}>
               <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>{t("recentActivity")}</h2>
+                <h2 className={`section-heading ${styles.sectionTitle}`}>{t("recentActivity")}</h2>
                 {currentUser && (
                   <div className={styles.tabs}>
                     <button onClick={() => setActiveFeed("global")} className={`${styles.tab} ${activeFeed === "global" ? styles.activeTab : ""}`}>{t("tabGlobal")}</button>
@@ -427,7 +462,7 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-              {reviewsLoading ? <div className={styles.loader}>{t("loadingReviews")}</div> :
+              {reviewsLoading ? <ReviewListSkeleton label={t("loadingReviews")} /> :
                 activeFeed === "following" && !currentUser ? (
                   <div className={styles.loginPrompt}>
                     <p>{t("loginPromptFollowing")}</p>

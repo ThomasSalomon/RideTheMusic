@@ -18,7 +18,8 @@
   gap: 12px;
   padding: 16px;
   border-radius: 12px;
-  border-left: 4px solid var(--border);
+  border: 1px solid var(--border-strong);
+  background-color: var(--bg-card);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   animation: slideIn var(--duration-slow) var(--ease-entrance) forwards;
@@ -30,23 +31,26 @@
 }
 
 .success {
-  border-left-color: var(--color-success);
-  background: rgba(16, 185, 129, 0.05);
+  --toast-tone: var(--color-success);
+  border-color: rgba(52, 211, 153, 0.28);
+  background-image: linear-gradient(rgba(52, 211, 153, 0.06), rgba(52, 211, 153, 0.06));
 }
 
 .error {
-  border-left-color: var(--color-error);
-  background: rgba(244, 63, 94, 0.05);
+  --toast-tone: var(--color-error);
+  border-color: rgba(251, 113, 133, 0.3);
+  background-image: linear-gradient(rgba(251, 113, 133, 0.06), rgba(251, 113, 133, 0.06));
 }
 
 .info {
-  border-left-color: var(--color-info);
-  background: rgba(59, 130, 246, 0.05);
+  --toast-tone: var(--color-info);
+  border-color: rgba(96, 165, 250, 0.28);
+  background-image: linear-gradient(rgba(96, 165, 250, 0.06), rgba(96, 165, 250, 0.06));
 }
 
 .icon {
-  font-size: 1.1rem;
   flex-shrink: 0;
+  color: var(--toast-tone, var(--text-secondary));
 }
 
 .message {
