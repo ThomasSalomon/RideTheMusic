@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/services/db";
+import { rememberRegistrationDevice } from "@/services/login-alerts";
 import { setAuthCookie, signToken } from "@/utils/auth";
 import { hashPassword } from "@/utils/crypto";
 import { rateLimit, getClientIP } from "@/utils/rateLimit";
@@ -104,6 +105,7 @@ export async function POST(req: Request) {
     });
 
     setAuthCookie(response, token);
+    await rememberRegistrationDevice(req, response, user.id);
 
     return response;
   } catch (error) {

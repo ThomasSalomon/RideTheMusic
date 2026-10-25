@@ -4,7 +4,7 @@
 
 - Un login o registro crea una sesión independiente.
 - `POST /api/auth/logout` revoca sólo la sesión del JWT recibido y siempre expira la cookie.
-- Cambiar la contraseña revoca todas las sesiones activas del usuario, incrementa `credentialsVersion` y expira la cookie. No existe recuperación de contraseña en el repositorio actual.
+- Cambiar la contraseña revoca todas las sesiones activas del usuario, incrementa `credentialsVersion` y expira la cookie. Restablecerla con un enlace de recuperación hace lo mismo (ver [account-emails.md](account-emails.md)).
 - Las sesiones vencidas o revocadas no se aceptan aunque el JWT conserve una firma y expiración válidas.
 
 ## Modelo y verificación

@@ -28,7 +28,7 @@
     "db:migrate:test:comments": "tsx --test test/comment-idempotency-migration.test.ts",
     "db:migrate:test:invariants": "tsx --test test/data-invariants-migration.test.ts",
     "db:migrate:test:sessions": "tsx --test test/revocable-sessions-migration.test.ts",
-    "test:auth": "tsx --test test/auth-route-handlers.test.ts test/revocable-sessions.test.ts",
+    "test:auth": "tsx --test test/auth-route-handlers.test.ts test/revocable-sessions.test.ts test/account-emails.test.ts",
     "db:ratings:diagnose": "tsx scripts/rating-duplicates.ts",
     "test:diary": "tsx --test test/diary-events.test.ts",
     "test:ratings": "tsx --test test/rating-integrity.test.ts",

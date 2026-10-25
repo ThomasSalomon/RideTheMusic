@@ -109,7 +109,11 @@ export default function LoginPage() {
             />
           </Field>
 
-          {error && <div className={styles.errorMsg} role="alert">{error}</div>}
+          <Link href="/forgot-password" className={styles.forgotLink}>
+            {t("forgotPassword")}
+          </Link>
+
+          {error &&<div className={styles.errorMsg} role="alert">{error}</div>}
 
           <Button type="submit" variant="neon" isLoading={loading} loadingLabel={t("loggingIn")}>
             {t("login")}

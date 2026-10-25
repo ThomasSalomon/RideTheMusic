@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { resolveEmailLocale } from "@/services/account-emails";
 import { prisma } from "@/services/db";
+import { handleSignInDevice } from "@/services/login-alerts";
 import { setAuthCookie, signToken } from "@/utils/auth";
 import { comparePassword, comparePasswordWithoutAccount } from "@/utils/crypto";
 import { rateLimit, getClientIP } from "@/utils/rateLimit";
@@ -89,6 +91,7 @@ export async function POST(req: Request) {
     });
 
     setAuthCookie(response, token);
+    await handleSignInDevice(req, response, user, resolveEmailLocale(req));
 
     return response;
   } catch (error) {

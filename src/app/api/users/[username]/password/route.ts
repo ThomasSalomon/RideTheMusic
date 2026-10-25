@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { authorizePasswordChange, changePassword } from "@/services/account";
+import { resolveEmailLocale } from "@/services/account-emails";
+import { sendPasswordChangedEmail } from "@/services/password-reset";
 import { clearAuthCookie, resolveAuthUser } from "@/utils/auth";
+import { runInBackground } from "@/utils/background";
 import { routeErrorResponse } from "@/utils/http-errors";
 import { readJsonObject, rejectUnknownFields, RequestBodyError } from "@/utils/request-body";
 
@@ -23,7 +26,9 @@ export async function PATCH(
       throw new RequestBodyError("La nueva contraseña debe tener al menos 6 caracteres");
     }
 
-    await changePassword(changeContext, { currentPassword, newPassword });
+    const account = await changePassword(changeContext, { currentPassword, newPassword });
+    const locale = resolveEmailLocale(req);
+    runInBackground("password changed notice", () => sendPasswordChangedEmail(account, locale));
 
     const response = NextResponse.json({ message: "Contraseña actualizada con éxito" });
     clearAuthCookie(response);

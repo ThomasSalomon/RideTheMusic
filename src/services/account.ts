@@ -29,18 +29,18 @@ export async function changePassword(
   context: Awaited<ReturnType<typeof authorizePasswordChange>>,
   input: { currentPassword: string; newPassword: string },
   client: PrismaClient = prisma,
-): Promise<void> {
+): Promise<{ email: string; username: string; changedAt: Date }> {
   const hashedPassword = await hashPassword(input.newPassword);
   const changed = await client.$transaction(async (tx) => {
     const currentUser = await tx.user.findUnique({
       where: { id: context.userId },
-      select: { password: true },
+      select: { password: true, email: true, username: true },
     });
     if (
       !currentUser ||
       !(await comparePassword(input.currentPassword, currentUser.password))
     ) {
-      return false;
+      return null;
     }
 
     const now = new Date();
@@ -52,7 +52,7 @@ export async function changePassword(
       where: { userId: context.userId, revokedAt: null },
       data: { revokedAt: now },
     });
-    return true;
+    return { email: currentUser.email, username: currentUser.username, changedAt: now };
   });
 
   if (!changed) {
@@ -62,4 +62,5 @@ export async function changePassword(
       "CURRENT_PASSWORD_INVALID",
     );
   }
+  return changed;
 }

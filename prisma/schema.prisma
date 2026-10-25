@@ -36,6 +36,8 @@ model User {
   notifications       Notification[]
   earnedBadges        EarnedBadge[]
   authSessions        AuthSession[]
+  passwordResetTokens PasswordResetToken[]
+  knownDevices        KnownDevice[]
 }
 
 model AuthSession {
@@ -49,6 +51,34 @@ model AuthSession {
 
   @@index([userId, revokedAt])
   @@index([expiresAt])
+}
+
+// Only the SHA-256 of the emailed token is stored. A token is valid while it is
+// unused, unexpired and the account still has the credentialsVersion it was issued for.
+model PasswordResetToken {
+  id                 String    @id @default(uuid())
+  userId             String
+  tokenHash          String    @unique
+  credentialsVersion Int
+  createdAt          DateTime  @default(now())
+  expiresAt          DateTime
+  usedAt             DateTime?
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// Browsers that already signed in to an account, identified by the SHA-256 of a
+// random device cookie. No IP address or user agent is persisted.
+model KnownDevice {
+  id         String   @id @default(uuid())
+  userId     String
+  deviceHash String
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, deviceHash])
 }
 
 model MusicItem {

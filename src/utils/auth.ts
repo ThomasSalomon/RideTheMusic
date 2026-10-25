@@ -17,7 +17,7 @@ export type AuthResult =
   | { ok: true; user: AuthUser }
   | { ok: false; reason: AuthFailureReason };
 
-type CookieResponse = {
+export type CookieResponse = {
   cookies: { set: (name: string, value: string, options: Record<string, unknown>) => void };
 };
 
@@ -28,7 +28,7 @@ type SessionTokenPayload = {
   sessionId: string;
 };
 
-function readCookie(request: Request, name: string): string | undefined {
+export function readCookie(request: Request, name: string): string | undefined {
   const cookieHeader = request.headers.get("cookie");
   if (!cookieHeader) return undefined;
 

@@ -86,7 +86,7 @@ function assertSucceeded(result: CommandResult): void {
 
 async function assertDatabaseShape(
   url: string,
-  expected: { tables: number; indexes: number } = { tables: 17, indexes: 31 },
+  expected: { tables: number; indexes: number } = { tables: 19, indexes: 34 },
 ): Promise<void> {
   const client = createClient({ url });
   try {

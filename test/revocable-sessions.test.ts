@@ -67,12 +67,22 @@ async function setup(): Promise<Context> {
       FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
     );
     CREATE INDEX "AuthSession_userId_revokedAt_idx" ON "AuthSession" ("userId", "revokedAt");
+    CREATE TABLE "KnownDevice" (
+      "id" TEXT NOT NULL PRIMARY KEY,
+      "userId" TEXT NOT NULL,
+      "deviceHash" TEXT NOT NULL,
+      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      "lastSeenAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    );
+    CREATE UNIQUE INDEX "KnownDevice_userId_deviceHash_key" ON "KnownDevice" ("userId", "deviceHash");
   `);
   await client.execute({
     sql: 'INSERT INTO "User" ("id", "username", "email", "password", "updatedAt") VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)',
     args: [USER_ID, USERNAME, "session-user@example.test", await hashPassword("old-password")],
   });
 
+  (await import("../src/services/mail")).setMailTransport(async () => {});
   const auth = await import("../src/utils/auth");
   const loginRoute = await import("../src/app/api/auth/login/route");
   const registerRoute = await import("../src/app/api/auth/register/route");

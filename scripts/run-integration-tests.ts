@@ -7,6 +7,7 @@ const groups = [
   ["test/architecture-refactor.test.ts"],
   ["test/auth-me-contract.test.ts"],
   ["test/auth-route-handlers.test.ts", "test/revocable-sessions.test.ts"],
+  ["test/account-emails.test.ts"],
   ["test/deezer-http.test.ts", "test/deezer-routes.test.ts"],
   ["test/diary-events.test.ts"],
   ["test/listen-later-authorization.test.ts"],
